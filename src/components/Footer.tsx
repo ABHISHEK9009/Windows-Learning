@@ -5,6 +5,7 @@ const footerLinks = {
     { label: 'Browse Mentors', to: '/mentors' },
     { label: 'How It Works', to: '/how-it-works' },
     { label: 'Pricing', to: '/pricing' },
+    { label: 'My Dashboard', to: '/dashboard' },
     { label: 'Corporate Plans', to: '/corporate' },
   ],
   'For Mentors': [
