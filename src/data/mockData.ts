@@ -4,42 +4,42 @@ export const categories: Category[] = [
   {
     id: 'tech',
     name: 'Technology & Development',
-    icon: '💻',
+    icon: 'Code',
     subcategories: ['Web Development', 'Mobile Apps', 'Cloud Computing', 'AI/ML', 'DevOps'],
     mentorCount: 342,
   },
   {
     id: 'data',
     name: 'Data Science & Analytics',
-    icon: '📊',
+    icon: 'BarChart3',
     subcategories: ['Data Analysis', 'Business Intelligence', 'Python', 'SQL', 'Machine Learning'],
     mentorCount: 189,
   },
   {
     id: 'design',
     name: 'UI/UX Design',
-    icon: '🎨',
+    icon: 'Palette',
     subcategories: ['Product Design', 'Figma', 'User Research', 'Prototyping', 'Design Systems'],
     mentorCount: 156,
   },
   {
     id: 'marketing',
     name: 'Digital Marketing',
-    icon: '📈',
+    icon: 'TrendingUp',
     subcategories: ['SEO', 'Social Media', 'Content Strategy', 'Analytics', 'PPC'],
     mentorCount: 221,
   },
   {
     id: 'business',
     name: 'Business & Leadership',
-    icon: '🏢',
+    icon: 'Briefcase',
     subcategories: ['Entrepreneurship', 'Project Management', 'Communication', 'Strategy'],
     mentorCount: 178,
   },
   {
     id: 'creative',
     name: 'Creative Arts',
-    icon: '✏️',
+    icon: 'PenTool',
     subcategories: ['Content Writing', 'Video Editing', 'Graphic Design', 'Photography'],
     mentorCount: 134,
   },
@@ -204,6 +204,24 @@ export const reviews: Review[] = [
     comment: 'Neha\'s PM interview prep sessions were game-changing. Got my dream offer at a FAANG company!',
     date: '2026-03-08',
   },
+  {
+    id: '4',
+    mentorId: '1',
+    learnerName: 'Sneha Iyer',
+    learnerAvatar: '',
+    rating: 4,
+    comment: 'Great session on Node.js microservices. Would have loved more time on deployment strategies.',
+    date: '2026-03-05',
+  },
+  {
+    id: '5',
+    mentorId: '2',
+    learnerName: 'Arjun Patel',
+    learnerAvatar: '',
+    rating: 5,
+    comment: 'Rahul\'s design critique sessions are invaluable. My portfolio improved dramatically after just 2 sessions.',
+    date: '2026-03-01',
+  },
 ];
 
 export const stats = {
@@ -220,3 +238,51 @@ export const popularSearches = [
   'Digital Marketing',
   'Product Management',
 ];
+
+// Mock data for dashboards
+export const mockMentorDashboard = {
+  totalEarnings: 284500,
+  monthlyEarnings: 47200,
+  weeklyEarnings: 12600,
+  totalSessions: 512,
+  upcomingSessions: [
+    { id: 's1', learnerName: 'Aditya Kumar', date: '2026-03-24', time: '10:00 AM', duration: 1, topic: 'React Performance Optimization', status: 'upcoming' as const },
+    { id: 's2', learnerName: 'Sneha Iyer', date: '2026-03-24', time: '2:00 PM', duration: 2, topic: 'Node.js Microservices', status: 'upcoming' as const },
+    { id: 's3', learnerName: 'Rohit Verma', date: '2026-03-25', time: '11:00 AM', duration: 1, topic: 'System Design Interview Prep', status: 'upcoming' as const },
+  ],
+  recentSessions: [
+    { id: 's4', learnerName: 'Meera Patel', date: '2026-03-22', time: '3:00 PM', duration: 1, topic: 'JavaScript Fundamentals', status: 'completed' as const, earned: 1500 },
+    { id: 's5', learnerName: 'Kiran Das', date: '2026-03-21', time: '10:00 AM', duration: 2, topic: 'Full Stack Project Review', status: 'completed' as const, earned: 3000 },
+    { id: 's6', learnerName: 'Prachi Shah', date: '2026-03-20', time: '4:00 PM', duration: 1, topic: 'React Native Basics', status: 'completed' as const, earned: 1500 },
+  ],
+  monthlyData: [
+    { month: 'Oct', earnings: 38200, sessions: 24 },
+    { month: 'Nov', earnings: 41500, sessions: 28 },
+    { month: 'Dec', earnings: 35800, sessions: 22 },
+    { month: 'Jan', earnings: 44100, sessions: 30 },
+    { month: 'Feb', earnings: 42800, sessions: 27 },
+    { month: 'Mar', earnings: 47200, sessions: 31 },
+  ],
+};
+
+export const mockLearnerDashboard = {
+  totalSessions: 18,
+  hoursLearned: 32,
+  walletBalance: 3500,
+  upcomingSessions: [
+    { id: 'ls1', mentorName: 'Priya Sharma', mentorTitle: 'Senior Full Stack Developer', date: '2026-03-24', time: '10:00 AM', duration: 1, topic: 'React Performance Optimization' },
+    { id: 'ls2', mentorName: 'Dr. Anjali Kapoor', mentorTitle: 'Principal Data Scientist', date: '2026-03-26', time: '2:00 PM', duration: 2, topic: 'Introduction to Neural Networks' },
+  ],
+  pastSessions: [
+    { id: 'ls3', mentorName: 'Priya Sharma', mentorTitle: 'Senior Full Stack Developer', date: '2026-03-20', duration: 1, topic: 'React Hooks Deep Dive', rating: 5 },
+    { id: 'ls4', mentorName: 'Neha Gupta', mentorTitle: 'Senior PM at Google India', date: '2026-03-18', duration: 2, topic: 'PM Interview Preparation', rating: 5 },
+    { id: 'ls5', mentorName: 'Rahul Mehta', mentorTitle: 'Lead Product Designer', date: '2026-03-15', duration: 1, topic: 'Portfolio Design Review', rating: 4 },
+  ],
+  favoriteMentors: ['1', '3', '5'],
+  skillProgress: [
+    { skill: 'React', progress: 72 },
+    { skill: 'Data Science', progress: 35 },
+    { skill: 'Product Management', progress: 50 },
+    { skill: 'UI/UX Design', progress: 20 },
+  ],
+};

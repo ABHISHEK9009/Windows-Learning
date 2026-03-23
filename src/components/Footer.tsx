@@ -5,11 +5,12 @@ const footerLinks = {
     { label: 'Browse Mentors', to: '/mentors' },
     { label: 'How It Works', to: '/how-it-works' },
     { label: 'Pricing', to: '/pricing' },
+    { label: 'My Dashboard', to: '/dashboard' },
     { label: 'Corporate Plans', to: '/corporate' },
   ],
   'For Mentors': [
     { label: 'Become a Mentor', to: '/signup' },
-    { label: 'Mentor Dashboard', to: '/dashboard' },
+    { label: 'Mentor Dashboard', to: '/mentor/dashboard' },
     { label: 'Payout Info', to: '/payouts' },
     { label: 'Resources', to: '/resources' },
   ],

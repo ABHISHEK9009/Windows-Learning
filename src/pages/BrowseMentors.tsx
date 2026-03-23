@@ -1,10 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, Code, BarChart3, Palette, TrendingUp, Briefcase, PenTool } from 'lucide-react';
 import { mentors, categories } from '@/data/mockData';
 import MentorCard from '@/components/MentorCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+
+const iconMap: Record<string, React.ElementType> = {
+  Code, BarChart3, Palette, TrendingUp, Briefcase, PenTool,
+};
 
 const BrowseMentors = () => {
   const [searchParams] = useSearchParams();
@@ -33,13 +37,11 @@ const BrowseMentors = () => {
       <Navbar />
       <main className="flex-1">
         <div className="container-main py-8">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Find your mentor</h1>
             <p className="text-muted-foreground">Browse {mentors.length} verified experts across {categories.length} skill categories</p>
           </div>
 
-          {/* Search & Filters */}
           <div className="flex flex-col md:flex-row gap-3 mb-8">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -60,7 +62,6 @@ const BrowseMentors = () => {
           </div>
 
           <div className="flex gap-8">
-            {/* Sidebar Filters */}
             <aside className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-56 shrink-0 space-y-6`}>
               <div>
                 <h4 className="text-sm font-semibold mb-3">Category</h4>
@@ -73,17 +74,20 @@ const BrowseMentors = () => {
                   >
                     All Categories
                   </button>
-                  {categories.map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
-                      className={`block text-sm w-full text-left px-3 py-1.5 rounded-md transition-colors ${
-                        selectedCategory === cat.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                      }`}
-                    >
-                      {cat.icon} {cat.name}
-                    </button>
-                  ))}
+                  {categories.map(cat => {
+                    const Icon = iconMap[cat.icon] || Code;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`flex items-center gap-2 text-sm w-full text-left px-3 py-1.5 rounded-md transition-colors ${
+                          selectedCategory === cat.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" /> {cat.name}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -110,7 +114,6 @@ const BrowseMentors = () => {
               </div>
             </aside>
 
-            {/* Results */}
             <div className="flex-1">
               <p className="text-sm text-muted-foreground mb-4">{filtered.length} mentor{filtered.length !== 1 ? 's' : ''} found</p>
               {filtered.length > 0 ? (
