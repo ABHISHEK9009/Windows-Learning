@@ -10,7 +10,7 @@ const footerLinks = {
   ],
   'For Mentors': [
     { label: 'Become a Mentor', to: '/signup' },
-    { label: 'Mentor Dashboard', to: '/dashboard' },
+    { label: 'Mentor Dashboard', to: '/mentor/dashboard' },
     { label: 'Payout Info', to: '/payouts' },
     { label: 'Resources', to: '/resources' },
   ],
