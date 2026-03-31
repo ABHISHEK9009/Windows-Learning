@@ -1,0 +1,584 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_DIRECT_URL")
+}
+
+// ENUMS
+
+enum Role {
+  LEARNER
+  MENTOR
+  ADMIN
+}
+
+enum SessionStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PAYMENT
+  REFUND
+}
+
+enum NotificationType {
+  NEW_MESSAGE
+  SESSION_REQUEST
+  SESSION_CONFIRMED
+  SESSION_CANCELLED
+  NEW_PROPOSAL
+  PROPOSAL_ACCEPTED
+  NEW_REVIEW
+}
+
+enum SkillDemand {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// MODELS
+
+model User {
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  name                String?
+  profilePicture      String?
+  password            String
+  role                Role                 @default(LEARNER)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  isActive            Boolean              @default(true)
+  deletedAt           DateTime?
+  learnerProfile      LearnerProfile?
+  mentorProfile       MentorProfile?
+  sentMessages        Message[]            @relation("sent")
+  receivedMessages    Message[]            @relation("received")
+  conversationUsers   ConversationUser[]
+  notifications       Notification[]
+  notificationSetting NotificationSetting?
+  reports             Report[]
+  wallet              Wallet?
+  auditLogs           AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model LearnerProfile {
+  id              String               @id @default(cuid())
+  user            User                 @relation(fields: [userId], references: [id])
+  userId          String               @unique
+  bio             String?
+  experienceLevel String?
+  isActive        Boolean              @default(true)
+  deletedAt       DateTime?
+  skills          LearnerSkill[]
+  requirements    LearnerRequirement[]
+  savedMentors    SavedMentor[]
+  sessions        Session[]
+  reviews         Review[]
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model MentorProfile {
+  id                    String               @id @default(cuid())
+  user                  User                 @relation(fields: [userId], references: [id])
+  userId                String               @unique
+  
+  // Basic Information
+  fullName              String?               @map("full_name")
+  profileImage          String?               @map("profile_image")
+  headline              String?
+  bio                   String?
+  location              String?
+  languages             String[]              @default([])
+  
+  // Professional Information
+  skillsData            Json?                 // { "React": "expert", "Node.js": "advanced" } @map("skills_data")
+  experienceYears       Int                   @default(0) @map("experience_years")
+  currentCompany        String?               @map("current_company")
+  currentRole           String?               @map("current_role")
+  pastExperience        Json?                 // Array of { company, role, years }
+  education             Json?                 // Array of { degree, institution, year }
+  
+  // Pricing & Packages (Legacy compatibility)
+  hourlyRate            Decimal?              @map("hourly_rate") @db.Decimal(10, 2)
+  currency              String                @default("INR")
+  packageDeals          Json?                 // Array of { sessions, price, savings }
+  freeConsultation      Boolean               @default(false) @map("free_consultation")
+  
+  // Availability
+  weeklySchedule        Json?                 // { monday: ["9:00-12:00"], tuesday: [...] }
+  timeZone              String                @default("Asia/Kolkata") @map("time_zone")
+  responseTime          String?               @map("response_time")
+  timeOff               Json?                 // Array of { start, end, reason }
+  
+  // Verification & Credentials
+  certifications        Json?                 // Array of { name, issuer, year, fileUrl }
+  idDocument            String?               @map("id_document")
+  workVerification      String?               @map("work_verification")
+  verificationStatus    String                @default("pending") @map("verification_status")
+  
+  // Legacy Fields (for backward compatibility)
+  title                 String?               // Map to headline
+  company               String?               // Legacy, map to currentCompany
+  experience            Int?                  // Legacy, map to experienceYears  
+  linkedinUrl           String?
+  portfolioUrl          String?
+  isVerified            Boolean              @default(false)
+  rejectionReason       String?
+  
+  // Statistics (Auto-calculated)
+  totalSessions         Int                  @default(0) @map("total_sessions")
+  totalStudents         Int                  @default(0) @map("total_students")
+  averageRating         Decimal?             @map("average_rating") @db.Decimal(3, 2)
+  totalReviews          Int                  @default(0) @map("total_reviews")
+  responseRate          Decimal?             @map("response_rate") @db.Decimal(5, 2)
+  completionRate        Decimal?             @map("completion_rate") @db.Decimal(5, 2)
+  
+  // Status & Metadata
+  isActive              Boolean              @default(true)
+  deletedAt             DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  
+  // Relationships
+  skills                MentorSkill[]
+  sessions              Session[]
+  reviews               Review[]
+  proposals             Proposal[]
+  availability          MentorAvailability[]
+  tags                  MentorTag[]
+
+  @@index([userId])
+  @@index([verificationStatus])
+  @@index([isActive])
+  @@index([hourlyRate])
+  @@index([averageRating])
+  @@index([totalSessions])
+  @@index([isVerified])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  icon      String?
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
+  skills    Skill[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Skill {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  keywords    String[] // ["web", "frontend", "react"]
+  description String?
+  demand      SkillDemand    @default(MEDIUM)
+  isTrending  Boolean        @default(false)
+  isActive    Boolean        @default(true)
+  deletedAt   DateTime?
+  category    Category       @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  mentors     MentorSkill[]
+  learners    LearnerSkill[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([name])
+  @@index([slug])
+  @@index([keywords])
+  @@index([demand])
+  @@index([isTrending])
+  @@index([isActive])
+  @@index([categoryId])
+}
+
+model MentorSkill {
+  mentor      MentorProfile @relation(fields: [mentorId], references: [id])
+  mentorId    String
+  skill       Skill         @relation(fields: [skillId], references: [id])
+  skillId     String
+  proficiency Int?          @default(1) // 1-5 scale
+  createdAt   DateTime      @default(now())
+
+  @@id([mentorId, skillId])
+  @@index([mentorId])
+  @@index([skillId])
+}
+
+model LearnerSkill {
+  learner   LearnerProfile @relation(fields: [learnerId], references: [id])
+  learnerId String
+  skill     Skill          @relation(fields: [skillId], references: [id])
+  skillId   String
+  level     Int?           @default(1) // 1-5 scale
+  createdAt DateTime       @default(now())
+
+  @@id([learnerId, skillId])
+  @@index([learnerId])
+  @@index([skillId])
+}
+
+model Session {
+  id          String         @id @default(cuid())
+  mentor      MentorProfile  @relation(fields: [mentorId], references: [id])
+  mentorId    String
+  learner     LearnerProfile @relation(fields: [learnerId], references: [id])
+  learnerId   String
+  startTime   DateTime
+  endTime     DateTime
+  topic       String?
+  amount      Decimal        @default(0) @db.Decimal(10, 2)
+  meetingLink String?
+  status      SessionStatus  @default(PENDING)
+  isActive    Boolean        @default(true)
+  deletedAt   DateTime?
+  notes       SessionNote[]
+  review      Review?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([mentorId])
+  @@index([learnerId])
+  @@index([status])
+  @@index([startTime])
+  @@index([isActive])
+}
+
+model SessionNote {
+  id        String   @id @default(cuid())
+  session   Session  @relation(fields: [sessionId], references: [id])
+  sessionId String
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+}
+
+model LearnerRequirement {
+  id          String           @id @default(cuid())
+  learner     LearnerProfile   @relation(fields: [learnerId], references: [id])
+  learnerId   String
+  title       String
+  description String
+  budget      Decimal?         @db.Decimal(10, 2)
+  isActive    Boolean          @default(true)
+  deletedAt   DateTime?
+  proposals   Proposal[]
+  tags        RequirementTag[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([learnerId])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model Proposal {
+  id            String             @id @default(cuid())
+  mentor        MentorProfile      @relation(fields: [mentorId], references: [id])
+  mentorId      String
+  requirement   LearnerRequirement @relation(fields: [requirementId], references: [id])
+  requirementId String
+  coverLetter   String
+  proposedRate  Decimal            @db.Decimal(10, 2)
+  isAccepted    Boolean            @default(false)
+  isActive      Boolean            @default(true)
+  deletedAt     DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([mentorId])
+  @@index([requirementId])
+  @@index([isAccepted])
+  @@index([createdAt])
+}
+
+model Review {
+  id            String         @id @default(cuid())
+  session       Session        @relation(fields: [sessionId], references: [id])
+  sessionId     String         @unique
+  mentor        MentorProfile  @relation(fields: [mentorId], references: [id])
+  mentorId      String
+  learner       LearnerProfile @relation(fields: [learnerId], references: [id])
+  learnerId     String
+  
+  // Review Content
+  rating        Int            // 1-5
+  title         String?
+  comment       String?
+  tags          String[]       @default([]) // ["knowledgeable", "clear", "patient"]
+  
+  // Mentor Response
+  mentorResponse  String?      @map("mentor_response")
+  mentorResponseAt DateTime?   @map("mentor_response_at")
+  
+  // Engagement
+  helpfulCount  Int            @default(0) @map("helpful_count")
+  
+  // Verification
+  isVerified    Boolean        @default(true) // Session was completed
+  
+  // Status & Metadata
+  isActive      Boolean        @default(true)
+  deletedAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([sessionId])
+  @@index([mentorId])
+  @@index([learnerId])
+  @@index([rating])
+  @@index([isActive])
+  @@index([isVerified])
+  @@index([createdAt])
+}
+
+model Wallet {
+  id           String        @id @default(cuid())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String        @unique
+  balance      Decimal       @default(0) @db.Decimal(10, 2)
+  isActive     Boolean       @default(true)
+  deletedAt    DateTime?
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  wallet      Wallet          @relation(fields: [walletId], references: [id])
+  walletId    String
+  amount      Decimal         @db.Decimal(10, 2)
+  type        TransactionType
+  description String?
+  referenceId String?
+  isActive    Boolean         @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@index([walletId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([isActive])
+}
+
+model Conversation {
+  id        String             @id @default(cuid())
+  isActive  Boolean            @default(true)
+  deletedAt DateTime?
+  users     ConversationUser[]
+  messages  Message[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model ConversationUser {
+  conversationId String
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  lastReadAt     DateTime     @default(now())
+  isActive       Boolean      @default(true)
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+  Conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@id([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+  @@index([lastReadAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  sender         User         @relation("sent", fields: [senderId], references: [id])
+  senderId       String
+  receiver       User         @relation("received", fields: [receiverId], references: [id])
+  receiverId     String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+  content        String
+  isActive       Boolean      @default(true)
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([conversationId])
+  @@index([createdAt])
+  @@index([isActive])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    String
+  type      NotificationType
+  content   String
+  isActive  Boolean          @default(true)
+  deletedAt DateTime?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model NotificationSetting {
+  id              String    @id @default(cuid())
+  user            User      @relation(fields: [userId], references: [id])
+  userId          String    @unique
+  newMessages     Boolean   @default(true)
+  sessionRequests Boolean   @default(true)
+  newProposals    Boolean   @default(true)
+  isActive        Boolean   @default(true)
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model MentorAvailability {
+  id        String        @id @default(cuid())
+  mentor    MentorProfile @relation(fields: [mentorId], references: [id])
+  mentorId  String
+  dayOfWeek Int // 0 = Sunday, 6 = Saturday
+  startTime String // e.g., "09:00"
+  endTime   String // e.g., "17:00"
+  isActive  Boolean       @default(true)
+  deletedAt DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([mentorId])
+  @@index([dayOfWeek])
+  @@index([isActive])
+}
+
+model SavedMentor {
+  learner   LearnerProfile @relation(fields: [learnerId], references: [id])
+  learnerId String
+  mentorId  String
+  createdAt DateTime       @default(now())
+
+  @@id([learnerId, mentorId])
+  @@index([learnerId])
+  @@index([mentorId])
+}
+
+model Report {
+  id         String    @id @default(cuid())
+  reporter   User      @relation(fields: [reporterId], references: [id])
+  reporterId String
+  reportedId String
+  reason     String
+  status     String    @default("PENDING") // PENDING, RESOLVED, DISMISSED
+  isActive   Boolean   @default(true)
+  deletedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([reporterId])
+  @@index([reportedId])
+  @@index([status])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model Tag {
+  id           String           @id @default(cuid())
+  name         String           @unique
+  slug         String           @unique
+  color        String? // hex color for UI
+  isActive     Boolean          @default(true)
+  deletedAt    DateTime?
+  mentors      MentorTag[]
+  requirements RequirementTag[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([name])
+  @@index([slug])
+  @@index([isActive])
+}
+
+model MentorTag {
+  mentorId  String
+  tagId     String
+  mentor    MentorProfile @relation(fields: [mentorId], references: [id])
+  tag       Tag           @relation(fields: [tagId], references: [id])
+  createdAt DateTime      @default(now())
+
+  @@id([mentorId, tagId])
+  @@index([mentorId])
+  @@index([tagId])
+}
+
+model RequirementTag {
+  requirementId String
+  tagId         String
+  requirement   LearnerRequirement @relation(fields: [requirementId], references: [id])
+  tag           Tag                @relation(fields: [tagId], references: [id])
+  createdAt     DateTime           @default(now())
+
+  @@id([requirementId, tagId])
+  @@index([requirementId])
+  @@index([tagId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String? // null for system actions
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entity    String // User, MentorProfile, Session, etc.
+  entityId  String
+  oldValues Json? // previous state
+  newValues Json? // new state
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+}

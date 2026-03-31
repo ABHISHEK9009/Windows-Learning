@@ -1,18 +1,38 @@
 export interface Mentor {
   id: string;
-  name: string;
-  avatar: string;
-  expertise: string[];
-  title: string;
-  experience: number; // years
-  hourlyRate: number; // INR
-  rating: number;
-  reviewCount: number;
-  sessionsCompleted: number;
-  isVerified: boolean;
-  isAvailableNow: boolean;
-  bio: string;
-  categoryId: string;
+  userId: string;
+  user?: {
+    name: string;
+    avatar?: string;
+  };
+  skills?: Array<{
+    skill: {
+      name: string;
+    id: string;
+    };
+  }>;
+  reviews?: Array<{
+    id: string;
+    rating: number;
+    comment: string;
+    learner: {
+      user: {
+        name: string;
+      };
+    };
+    createdAt: string;
+  }>;
+  title?: string;
+  bio?: string;
+  location?: string;
+  languages?: string[];
+  hourlyRate?: number;
+  isVerified?: boolean;
+  // Legacy properties for backward compatibility
+  name?: string;
+  expertise?: string[];
+  rating?: number;
+  reviewCount?: number;
 }
 
 export interface Category {

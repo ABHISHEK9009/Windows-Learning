@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Code, BarChart3, Palette, TrendingUp, Briefcase, PenTool } from 'lucide-react';
-import { categories } from '@/data/mockData';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useCategories } from '@/hooks/useApi';
 
 const iconMap: Record<string, React.ElementType> = {
   Code,
@@ -14,6 +14,9 @@ const iconMap: Record<string, React.ElementType> = {
 
 const CategoryGrid = () => {
   const { ref, isVisible } = useScrollReveal();
+  const { data: categories = [], isLoading } = useCategories();
+
+  if (isLoading) return null;
 
   return (
     <section ref={ref} className="py-20 md:py-28">
@@ -30,7 +33,7 @@ const CategoryGrid = () => {
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
-          {categories.map((cat, i) => {
+          {categories.map((cat: any, i: number) => {
             const Icon = iconMap[cat.icon] || Code;
             return (
               <Link
@@ -45,7 +48,7 @@ const CategoryGrid = () => {
                 <span className="text-sm font-medium text-center leading-tight group-hover:text-primary transition-colors">
                   {cat.name}
                 </span>
-                <span className="mt-2 text-xs text-muted-foreground">{cat.mentorCount} mentors</span>
+                <span className="mt-2 text-xs text-muted-foreground">{cat._count?.skills || 0} skills</span>
               </Link>
             );
           })}

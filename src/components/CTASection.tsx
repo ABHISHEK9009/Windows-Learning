@@ -32,8 +32,7 @@ const CTASection = () => {
               {features.map((feature, i) => (
                 <li
                   key={feature}
-                  className={`flex items-start gap-3 text-white/80 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
-                  style={{ transitionDelay: isVisible ? `${200 + i * 80}ms` : '0ms' }}
+                  className={`flex items-start gap-3 text-white/80 transition-all duration-700 cta-feature-li ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
                 >
                   <CheckCircle className="h-5 w-5 text-accent mt-0.5 shrink-0" />
                   <span className="text-sm md:text-base">{feature}</span>
@@ -52,7 +51,7 @@ const CTASection = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 active:scale-[0.97] transition-all"
+                  className="active:scale-[0.97] transition-all text-green-500 active:text-white"
                 >
                   Become a Mentor
                 </Button>

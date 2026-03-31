@@ -1,15 +1,16 @@
-import { mentors } from '@/data/mockData';
 import MentorCard from './MentorCard';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useMentors } from '@/hooks/useApi';
 
 const FeaturedMentors = () => {
   const { ref, isVisible } = useScrollReveal();
+  const { data: mentors = [], isLoading } = useMentors({ limit: 4 });
   const featured = mentors.slice(0, 4);
 
   return (
-    <section ref={ref} className="py-20 md:py-28" style={{ backgroundColor: 'hsl(var(--surface-warm))' }}>
+    <section ref={ref} className="py-20 md:py-28 featured-mentors-background">
       <div className="container-main">
         <div className="flex items-end justify-between mb-12">
           <div>
@@ -32,11 +33,17 @@ const FeaturedMentors = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {featured.map((mentor, i) => (
-            <MentorCard key={mentor.id} mentor={mentor} index={i} isVisible={isVisible} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {featured.map((mentor: any, i: number) => (
+              <MentorCard key={mentor.id} mentor={mentor} index={i} isVisible={isVisible} />
+            ))}
+          </div>
+        )}
 
         <Link
           to="/mentors"

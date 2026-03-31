@@ -1,7 +1,21 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { popularSearches, stats } from '@/data/mockData';
+const popularSearches = [
+  'React Development',
+  'Data Science',
+  'UI/UX Design',
+  'Cloud Architecture',
+  'Digital Marketing'
+];
+
+const stats = {
+  mentorCount: '500+',
+  sessionsCompleted: '10,000+',
+  satisfaction: '99%',
+  avgRating: '4.9/5'
+};
+
 import heroBg from '@/assets/hero-bg.jpg';
 
 const Hero = () => {
@@ -15,10 +29,7 @@ const Hero = () => {
 
   return (
     <section
-      className="relative min-h-[600px] md:min-h-[680px] flex items-center overflow-hidden"
-      style={{
-        background: `linear-gradient(135deg, hsla(199, 89%, 28%, 0.92) 0%, hsla(210, 70%, 18%, 0.92) 100%)`,
-      }}
+      className="relative min-h-[600px] md:min-h-[680px] flex items-center overflow-hidden hero-background"
     >
       {/* Background image */}
       <img
@@ -96,7 +107,7 @@ const Hero = () => {
             { label: 'Satisfaction Rate', value: stats.satisfaction },
             { label: 'Avg. Rating', value: stats.avgRating },
           ].map((stat, i) => (
-            <div key={stat.label} className="text-center flex-shrink-0 opacity-0 animate-fade-up" style={{ animationDelay: `${700 + i * 80}ms` }}>
+            <div key={stat.label} className="text-center flex-shrink-0 opacity-0 animate-fade-up hero-stat">
               <div className="text-xl md:text-2xl font-bold text-white tabular-nums">{stat.value}</div>
               <div className="text-xs md:text-sm text-white/60">{stat.label}</div>
             </div>
